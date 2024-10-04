@@ -1,0 +1,209 @@
+class Nodo {
+    int valor;
+    Nodo izq, der;
+
+    public Nodo(int valor) {
+        this.valor = valor;
+        izq = der = null;
+    }
+}
+
+public class ArbolBinario {
+    private Nodo raiz;
+
+    public Nodo getRaiz() {
+        return raiz;
+    }
+
+    public void insertarNodo(int valor) {
+        Nodo nuevoNodo = new Nodo(valor);
+        if (raiz == null) {
+            raiz = nuevoNodo;
+        } else {
+            raiz = insertarNodoRecursivo(raiz, nuevoNodo);
+        }
+    }
+
+    private Nodo insertarNodoRecursivo(Nodo raiz, Nodo nodo) {
+        if (raiz == null) {
+            return nodo;
+        }
+        if (nodo.valor < raiz.valor) {
+            raiz.izq = insertarNodoRecursivo(raiz.izq, nodo);
+        } else {
+            raiz.der = insertarNodoRecursivo(raiz.der, nodo);
+        }
+        return raiz;
+    }
+
+    public boolean borrarNodo(int valor) {
+        if (buscarNodo(raiz, valor) != null) {
+            raiz = borrarNodoRecursivo(raiz, valor);
+            return true;
+        }
+        return false;
+    }
+
+    private Nodo buscarNodo(Nodo nodo, int valor) {
+        if (nodo == null) {
+            return null;
+        }
+        if (nodo.valor == valor) {
+            return nodo;
+        }
+        if (valor < nodo.valor) {
+            return buscarNodo(nodo.izq, valor);
+        } else {
+            return buscarNodo(nodo.der, valor);
+        }
+    }
+
+    private Nodo borrarNodoRecursivo(Nodo nodo, int valor) {
+        if (nodo == null) {
+            return null;
+        }
+        if (valor < nodo.valor) {
+            nodo.izq = borrarNodoRecursivo(nodo.izq, valor);
+        } else if (valor > nodo.valor) {
+            nodo.der = borrarNodoRecursivo(nodo.der, valor);
+        } else {
+            if (nodo.izq == null && nodo.der == null) {
+                return null;
+            } else if (nodo.izq == null) {
+                return nodo.der;
+            } else if (nodo.der == null) {
+                return nodo.izq;
+            } else {
+                Nodo nodoReemplazo = encontrarNodoMinimo(nodo.der);
+                nodo.valor = nodoReemplazo.valor;
+                nodo.der = borrarNodoRecursivo(nodo.der, nodoReemplazo.valor);
+            }
+        }
+        return nodo;
+    }
+
+    private Nodo encontrarNodoMinimo(Nodo nodo) {
+        while (nodo.izq != null) {
+            nodo = nodo.izq;
+        }
+        return nodo;
+    }
+
+    public static void imprimirPreorder(Nodo nodo) {
+        if (nodo != null) {
+            System.out.print(nodo.valor + " ");
+            imprimirPreorder(nodo.izq);
+            imprimirPreorder(nodo.der);
+        }
+    }
+
+    public static void imprimirInorder(Nodo nodo) {
+        if (nodo != null) {
+            imprimirInorder(nodo.izq);
+            System.out.print(nodo.valor + " ");
+            imprimirInorder(nodo.der);
+        }
+    }
+
+    public static void imprimirPostorder(Nodo nodo) {
+        if (nodo != null) {
+            imprimirPostorder(nodo.izq);
+            imprimirPostorder(nodo.der);
+            System.out.print(nodo.valor + " ");
+        }
+    }
+}
+
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        ArbolBinario arbol = new ArbolBinario();
+        Scanner sc = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("\nIngresa una de las siguientes opciones");
+            System.out.println("1. agregar");
+            System.out.println("2. eliminar");
+            System.out.println("3. imprimir");
+            System.out.println("4. salir");
+            int eleccion = Integer.parseInt(sc.nextLine());
+            switch (eleccion) {
+                case 1:
+                    while (true) {
+                        System.out.println("ingrese un valor que desee agregar ( o 'salir' para terminar):");
+                        String valor = sc.nextLine();
+                        if (valor.equalsIgnoreCase("salir")) {
+                            break;
+                        }
+
+                        try {
+                            int valorInt = Integer.parseInt(valor);
+                            arbol.insertarNodo(valorInt);
+                        } catch (NumberFormatException e) {
+                            System.out.println("Valor invalido");
+                        }
+                    }
+                    break;
+
+                case 2:
+                    while (true) {
+                        System.out.println("Ingrese un valor que desee eliminar ( o 'salir' para terminar)");
+                        String valor = sc.nextLine();
+                        if (valor.equalsIgnoreCase("salir")) {
+                            break;
+                        }
+
+                        try {
+                            int valorInt = Integer.parseInt(valor);
+                            if (arbol.borrarNodo(valorInt)) {
+                                System.out.println("El nodo se ha eliminado");
+                            } else {
+                                System.out.println("No se encontró un nodo con el valor " + valorInt);
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.println("Valor invalido");
+                        }
+                    }
+                    break;
+
+                case 3:
+                    System.out.println("¿En que formato quiere imprimir el arbol?");
+                    System.out.println("1. PreOrden");
+                    System.out.println("2. InOrden");
+                    System.out.println("3. PostOrden");
+                    System.out.println("4. Todas las anteriores");
+                    eleccion = Integer.parseInt(sc.nextLine());
+                    Nodo raiz = arbol.getRaiz();
+                    switch (eleccion) {
+                        case 1:
+                            ArbolBinario.imprimirPreorder(raiz);
+                            break;
+                        case 2:
+                            ArbolBinario.imprimirInorder(raiz);
+                            break;
+                        case 3:
+                            ArbolBinario.imprimirPostorder(raiz);
+                            break;
+                        case 4:
+                            System.out.println("\nArbol en Preorden");
+                            ArbolBinario.imprimirPreorder(raiz);
+                            System.out.println("\nArbol en Inorden");
+                            ArbolBinario.imprimirInorder(raiz);
+                            System.out.println("\nArbol en Posorden");
+                            ArbolBinario.imprimirPostorder(raiz);
+                            break;
+                    }
+                    break;
+
+                case 4:
+                    System.exit(0);
+                    break;
+
+                default:
+                    System.out.println("Opción inválida. Intente de nuevo.");
+                    break;
+            }
+        }
+    }
+}
